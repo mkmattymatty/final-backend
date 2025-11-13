@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const serverless = require("serverless-http"); // ✅ Vercel serverless wrapper
 
 dotenv.config();
 
@@ -12,9 +13,10 @@ const app = express();
 app.use(express.json());
 
 // --- ✅ CORS CONFIGURATION ---
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
-  "http://localhost:3000",
-];
+const allowedOrigins =
+  process.env.ALLOWED_ORIGINS?.split(",") || [
+    "http://localhost:3000",
+  ];
 
 app.use(
   cors({
@@ -69,14 +71,5 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "HealthLink API is running smoothly" });
 });
 
-// --- ✅ Deployment Config ---
-const PORT = process.env.PORT || 5000;
-
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () =>
-    console.log(`🚀 Server running locally on port ${PORT}`)
-  );
-} else {
-  // Export app for Vercel or serverless hosting
-  module.exports = app;
-}
+// --- ✅ Export for Vercel ---
+module.exports = serverless(app); // ✅ Wrap app for serverless
