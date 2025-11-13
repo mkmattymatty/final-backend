@@ -3,7 +3,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const serverless = require("serverless-http"); // ✅ Vercel serverless wrapper
 
 dotenv.config();
 
@@ -13,26 +12,10 @@ const app = express();
 app.use(express.json());
 
 // --- ✅ CORS CONFIGURATION ---
-const allowedOrigins =
-  process.env.ALLOWED_ORIGINS?.split(",") || [
-    "http://localhost:3000",
-  ];
-
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like Postman)
-      if (!origin) return callback(null, true);
-
-      // Allow from whitelisted origins
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-
-      console.warn("Blocked CORS request from:", origin);
-      return callback(
-        new Error("CORS policy does not allow access from this origin."),
-        false
-      );
-    },
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -60,16 +43,14 @@ app.post("/api/feedback", async (req, res) => {
     res.json({ success: true, data: feedback });
   } catch (err) {
     console.error("Feedback Error:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to save feedback." });
+    res.status(500).json({ success: false, message: "Failed to save feedback." });
   }
 });
 
-// --- ✅ Health Check Route ---
+// --- ✅ Health Check ---
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "HealthLink API is running smoothly" });
 });
 
-// --- ✅ Export for Vercel ---
-module.exports = serverless(app); // ✅ Wrap app for serverless
+// --- ✅ Export app for Vercel ---
+module.exports = app;
