@@ -4,11 +4,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
+// Load environment variables
 dotenv.config();
 
 const app = express();
 
-// Middleware
+// --- ✅ Middleware ---
 app.use(express.json());
 
 // --- ✅ CORS CONFIGURATION ---
@@ -43,20 +44,20 @@ app.post("/api/feedback", async (req, res) => {
     res.json({ success: true, data: feedback });
   } catch (err) {
     console.error("Feedback Error:", err);
-    res.status(500).json({ success: false, message: "Failed to save feedback." });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to save feedback." });
   }
 });
 
-// --- ✅ Health Check ---
+// --- ✅ Health Check Route ---
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "HealthLink API is running smoothly" });
 });
 
-// --- ✅ Start Server (for local use) ---
+// --- ✅ Start Server (for local + production) ---
 const PORT = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-}
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
-// --- ✅ Export app for Railway ---
+// --- ✅ Export app (optional for tests) ---
 module.exports = app;
